@@ -16,7 +16,9 @@ class VotingsAPI {
     }
     
     public function initRoutes($rc) {
-        $rc -> post('/votings', [$this, 'getAllVotings']);
+        $rc -> get('/votings', [$this, 'getAllVotings']);
+        $rc -> get('/votings/{votingid}', [$this, 'getVoting']);
+        $rc -> patch('/votings/{votingid}', [$this, 'vote']);
     }
     
     public function getAllVotings($path, $query, $body, $auth) {
@@ -30,6 +32,30 @@ class VotingsAPI {
             $resp['votings'][$k] = $this -> ptpVoting($v);
         
         return $resp;
+    }
+    
+    public function getVoting($path, $query, $body, $auth) {
+        if($path['votingid'] == 'current')
+            $voting = $this -> votings -> getVoting([
+                'current' => true
+            ]);
+        else
+            $voting = $this -> votings -> getVoting([
+                'votingid' => $path['votingid']
+            ]);
+        
+        return $this -> ptpVoting($voting);
+    }
+    
+    public function vote($path, $query, $body, $auth) {
+        if(!$auth)
+            throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
+        
+        $voting = $this -> getVoting($path, [], [], null);
+        if(!$voting['current'])
+            throw new Error('VOTING_ENDED', 'Voting '.$path['votingid'].' ended', 403);
+        
+        //
     }
     
     private function ptpProject($record, $winner) {

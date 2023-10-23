@@ -7,11 +7,15 @@ use React\Promise;
 
 class Votings {
     private $log;
+    private $loop;
     private $amqp;
     private $pdo;
     
-    function __construct($log, $amqp, $pdo) {
+    private $timerCreateVoting;
+    
+    function __construct($log, $loop, $amqp, $pdo) {
         $this -> log = $log;
+        $this -> loop = $loop;
         $this -> amqp = $amqp;
         $this -> pdo = $pdo;
         
@@ -20,6 +24,14 @@ class Votings {
     
     public function start() {
         $th = $this;
+        
+        $this -> timerCreateVoting = $this -> loop -> addPeriodicTimer(
+            300,
+            function() use($th) {
+                $th -> maybeCreateVoting();
+            }
+        );
+        maybeCreateVoting();
         
         $promises = [];
         
@@ -47,6 +59,8 @@ class Votings {
     
     public function stop() {
         $th = $this;
+        
+        $this -> loop -> cancelTimer($this -> timerCreateVoting);
         
         $promises = [];
         
@@ -159,6 +173,78 @@ class Votings {
             'year' => $row['year'],
             'current' => ($row['month'] == date('n') && $row['year'] == date('Y'))
         ];
+    }
+    
+    private function maybeCreateVoting() {        
+        // Check already exists
+        $task = [
+            ':month' => date('n'),
+            ':year' => date('Y')
+        ];
+        
+        $sql = 'SELECT votingid
+                FROM votings
+                WHERE month = :month
+                AND year = :year
+                FOR UPDATE';
+            
+        $this -> pdo -> beginTransaction();
+        
+        $q = $this -> pdo -> prepare($sql);
+        $q -> execute($task);
+        $row = $q -> fetch();
+        
+        if($row) {
+            $this -> pdo -> rollBack();
+            $this -> log -> debug('Have voting '.$row['votingid'].'. No need to create new voting.');
+            return;
+        }
+        
+        // Count available projects        
+        $sql = "SELECT COUNT(1) AS count
+                FROM projects
+                WHERE status = 'APPROVED'
+                FOR UPDATE";
+        
+        $q = $this -> pdo -> query($sql);
+        $count = $q -> fetch();
+        
+        if($count['count'] < 2) {
+            $this -> pdo -> rollBack();
+            $this -> log -> warn('Need to create new voting but dont have more than 2 approved projects.');
+            return;
+        }
+        
+        // Create voting
+        $sql = 'INSERT INTO votings(
+                    month,
+                    year
+                ) VALUES (
+                    :month,
+                    :year
+                )
+                RETURNING votingid';
+        
+        $q = $this -> pdo -> prepare($sql);
+        $q -> execute($task);
+        $voting = $q -> fetch();
+        
+        // Include projects
+        $task = [
+            ':votingid' => $voting['votingid']
+        ];
+        
+        $sql = "UPDATE projects
+                SET votingid = :votingid,
+                    votes = 0
+                WHERE status = 'APPROVED'";
+        
+        $q = $this -> pdo -> prepare($sql);
+        $q -> execute($task);
+        
+        $this -> pdo -> commit();
+        
+        $this -> log -> info('Created voting '.$voting['votingid'].' with '.$count['count'].' projects');
     }
 }
 
