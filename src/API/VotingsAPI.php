@@ -53,8 +53,12 @@ class VotingsAPI {
         ]);
         
         $projects = [];
-        foreach($respProj['projects'] as $k => $v)
-            $projects[] = $this -> ptpProject($v, !$record['current'] && $k == 0);
+        foreach($respProj['projects'] as $k => $v) {
+            if($record['current'])
+                $winner = null;
+            else
+                $winner = ($k == 0);
+            $projects[] = $this -> ptpProject($v, $winner);
         
         return [
             'votingid' => $record['votingid'],
