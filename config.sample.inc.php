@@ -14,7 +14,7 @@ define('DB_PASS', 'password');
 define('DB_NAME', 'vote.vote');
 
 define('VOTE_POWER_ASSETID', 'BPX');
-define('SUBMIT_MIN_AMOUNT', '100');
-define('BALANCE_TO_VOTES_MULTIPLIER', '0.01');
+define('SUBMIT_MIN_AMOUNT', '1000');
+define('BALANCE_MULTIPLIER', '0.01');
 
 ?>

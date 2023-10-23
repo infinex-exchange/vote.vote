@@ -6,16 +6,16 @@ use function Infinex\Validation\validateId;
 use React\Promise;
 
 class Votings {
-    private $log;
     private $loop;
+    private $log;
     private $amqp;
     private $pdo;
     
     private $timerCreateVoting;
     
-    function __construct($log, $loop, $amqp, $pdo) {
-        $this -> log = $log;
+    function __construct($loop, $log, $amqp, $pdo) {
         $this -> loop = $loop;
+        $this -> log = $log;
         $this -> amqp = $amqp;
         $this -> pdo = $pdo;
         

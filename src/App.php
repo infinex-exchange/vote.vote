@@ -2,18 +2,22 @@
 
 require __DIR__.'/Projects.php';
 require __DIR__.'/Votings.php';
-require __DIR__.'/Votes.php';
 
-require __DIR__.'/API/PopupsAPI.php';
+require __DIR__.'/API/SubmitAPI.php';
+require __DIR__.'/API/VotingsAPI.php';
+require __DIR__.'/API/VotesAPI.php';
 
 use React\Promise;
 
 class App extends Infinex\App\App {
     private $pdo;
     
-    private $popups;
+    private $projects;
+    private $votings;
     
-    private $popupsApi;
+    private $submitApi;
+    private $votingsApi;
+    private $votesApi;
     private $rest;
     
     function __construct() {
@@ -28,22 +32,49 @@ class App extends Infinex\App\App {
             DB_NAME
         );
         
-        $this -> popups = new Popups(
+        $this -> projects = new Projects(
             $this -> log,
             $this -> amqp,
             $this -> pdo
         );
         
-        $this -> popupsApi = new PopupsAPI(
+        $this -> votings = new Votings(
+            $this -> loop,
             $this -> log,
+            $this -> amqp,
             $this -> pdo
+        );
+        
+        $this -> submitApi = new SubmitAPI(
+            $this -> log,
+            $this -> amqp,
+            $this -> projects,
+            VOTE_POWER_ASSETID,
+            SUBMIT_MIN_AMOUNT
+        );
+        
+        $this -> votingsApi = new VotingsAPI(
+            $this -> log,
+            $this -> votings,
+            $this -> projects
+        );
+        
+        $this -> votesApi = new VotesAPI(
+            $this -> log,
+            $this -> amqp,
+            $this -> pdo,
+            $this -> votings,
+            VOTE_POWER_ASSETID,
+            BALANCE_MULTIPLIER
         );
         
         $this -> rest = new Infinex\API\REST(
             $this -> log,
             $this -> amqp,
             [
-                $this -> popupsApi
+                $this -> submitApi,
+                $this -> votingsApi,
+                $this -> votesApi
             ]
         );
     }
@@ -58,9 +89,13 @@ class App extends Infinex\App\App {
         ) -> then(
             function() use($th) {
                 return Promise\all([
-                    $th -> popups -> start(),
-                    $th -> rest -> start()
+                    $th -> projects -> start(),
+                    $th -> votings -> start()
                 ]);
+            }
+        ) -> then(
+            function() use($th) {
+                return $th -> rest -> start();
             }
         ) -> catch(
             function($e) {
@@ -72,10 +107,14 @@ class App extends Infinex\App\App {
     public function stop() {
         $th = $this;
         
-        Promise\all([
-            $this -> popups -> stop(),
-            $this -> rest -> stop()
-        ]) -> then(
+        $th -> rest -> stop() -> then(
+            function() use($th) {
+                return Promise\all([
+                    $this -> projects -> stop(),
+                    $this -> votings -> stop()
+                ]);
+            }
+        ) -> then(
             function() use($th) {
                 return $th -> pdo -> stop();
             }
