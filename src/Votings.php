@@ -31,7 +31,7 @@ class Votings {
                 $th -> maybeCreateVoting();
             }
         );
-        maybeCreateVoting();
+        $this -> maybeCreateVoting();
         
         $promises = [];
         
