@@ -243,6 +243,9 @@ class Votings {
         $q = $this -> pdo -> prepare($sql);
         $q -> execute($task);
         
+        // Truncate users utilized votes
+        $this -> pdo -> query('TRUNCATE TABLE user_utilized_votes');
+        
         $this -> pdo -> commit();
         
         $this -> log -> info('Created voting '.$voting['votingid'].' with '.$count['count'].' projects');
