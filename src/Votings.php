@@ -236,7 +236,8 @@ class Votings {
         
         $sql = "UPDATE projects
                 SET votingid = :votingid,
-                    votes = 0
+                    votes = 0,
+                    status = 'INCLUDED'
                 WHERE status = 'APPROVED'";
         
         $q = $this -> pdo -> prepare($sql);
