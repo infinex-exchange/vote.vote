@@ -4,7 +4,7 @@ use Infinex\Exceptions\Error;
 use Infinex\Validation\validateId;
 use Decimal\Decimal;
 
-class VotingsAPI {
+class VotesAPI {
     private $log;
     private $amqp;
     private $pdo;
@@ -20,15 +20,55 @@ class VotingsAPI {
         $this -> powerAssetid = $powerAssetid;
         $this -> multiplier = $multiplier;
         
-        $this -> log -> debug('Initialized votings API');
+        $this -> log -> debug('Initialized votes API');
     }
     
     public function initRoutes($rc) {
-        $rc -> patch('/votings/current', [$this, 'vote']);
-        $rc -> get('/avbl-votes', [$this, 'getAvblVotes']);
+        $rc -> get('/votes', [$this, 'getAvblVotes']);
+        $rc -> post('/votes', [$this, 'giveVotes']);
     }
     
-    public function vote($path, $query, $body, $auth) {
+    public function getAvblVotes($path, $query, $body, $auth) {
+        if(!$auth)
+            throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
+        
+        return $this -> amqp -> call(
+            'wallet.wallet',
+            'getBalance',
+            [
+                'uid' => $auth['uid'],
+                'assetid' => $this -> powerAssetid
+            ]
+        ) -> then(function($balance) use($th, $auth) {
+            $avblVotes = new Decimal($balance['total']);
+            $avblVotes *= $th -> multiplier;
+            $avblVotes = $avblVotes -> floor();
+            
+            $task = [
+                ':uid' => $auth['uid']
+            ];
+            
+            $sql = 'SELECT votes
+                    FROM user_utilized_votes
+                    WHERE uid = :uid';
+            
+            $q = $th -> pdo -> prepare($sql);
+            $q -> execute($task);
+            $rowUuv = $q -> fetch();
+            
+            if($rowUuv)
+                $avblVotes -= $rowUuv['votes'];
+            
+            if($avblVotes < 0)
+                $avblVotes = 0;
+            
+            return [
+                'votes' => $avblVotes
+            ];
+        });
+    }
+    
+    public function giveVotes($path, $query, $body, $auth) {
         if(!$auth)
             throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
