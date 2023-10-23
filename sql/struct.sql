@@ -2,7 +2,8 @@ CREATE ROLE "vote.vote" LOGIN PASSWORD 'password';
 
 create table votings(
     votingid bigserial not null primary key,
-    month timestamptz not null
+    month int not null,
+    year int not null
 );
 
 GRANT SELECT, INSERT ON votings TO "vote.vote";

@@ -3,6 +3,7 @@
 use Infinex\Exceptions\Error;
 use Infinex\Pagination;
 use Infinex\Database\Search;
+use Infinex\Database\Sorting;
 use function Infinex\Validation\validateId;
 use React\Promise;
 
@@ -106,6 +107,17 @@ class Projects {
             ],
             $body
         );
+        $sort = new Sorting(
+            [
+                'projectid' => 'projectid',
+                'symbol' => 'symbol',
+                'name' => 'name',
+                'status' => 'status',
+                'votes' => 'votes'
+            ],
+            'projectid', 'DESC',
+            $body
+        );
             
         $task = [];
         $search -> updateTask($task);
@@ -138,7 +150,7 @@ class Projects {
         }
             
         $sql .= $search -> sql()
-             .' ORDER BY projectid DESC'
+             . $sort -> sql()
              . $pag -> sql();
             
         $q = $this -> pdo -> prepare($sql);
@@ -157,7 +169,7 @@ class Projects {
         ];
     }
     
-    public function getPopup($body) {
+    public function getProject($body) {
         if(!isset($body['projectid']))
             throw new Error('MISSING_DATA', 'projectid');
         
