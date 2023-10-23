@@ -26,7 +26,7 @@ create table projects(
 GRANT SELECT, INSERT, UPDATE, DELETE ON projects TO "vote.vote";
 GRANT SELECT, USAGE ON projects_projectid_seq TO "vote.vote";
 
-create table user_utilized_votes(
+create table votes(
     votingid bigint not null,
     uid bigint not null,
     votes bigint not null,
@@ -34,4 +34,4 @@ create table user_utilized_votes(
     foreign key(votingid) references votings(votingid)
 );
 
-GRANT SELECT, INSERT, UPDATE ON user_utilized_votes TO "vote.vote";
+GRANT SELECT, INSERT, UPDATE ON votes TO "vote.vote";
