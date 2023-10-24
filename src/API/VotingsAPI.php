@@ -73,6 +73,7 @@ class VotingsAPI {
             else
                 $winner = ($k == 0);
             $projects[] = $this -> ptpProject($v, $winner);
+        }
         
         return [
             'votingid' => $record['votingid'],
