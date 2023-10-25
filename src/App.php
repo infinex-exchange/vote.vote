@@ -78,7 +78,7 @@ class App extends Infinex\App\App {
             [
                 $this -> submitApi,
                 $this -> votingsApi,
-                $this -> votesApi
+                $this -> accountApi
             ]
         );
     }
