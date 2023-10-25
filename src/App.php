@@ -5,7 +5,7 @@ require __DIR__.'/Votings.php';
 
 require __DIR__.'/API/SubmitAPI.php';
 require __DIR__.'/API/VotingsAPI.php';
-require __DIR__.'/API/VotesAPI.php';
+require __DIR__.'/API/AccountAPI.php';
 
 use React\Promise;
 
@@ -17,7 +17,7 @@ class App extends Infinex\App\App {
     
     private $submitApi;
     private $votingsApi;
-    private $votesApi;
+    private $accountApi;
     private $rest;
     
     function __construct() {
@@ -55,16 +55,20 @@ class App extends Infinex\App\App {
         
         $this -> votingsApi = new VotingsAPI(
             $this -> log,
-            $this -> votings,
-            $this -> projects
-        );
-        
-        $this -> votesApi = new VotesAPI(
-            $this -> log,
             $this -> amqp,
             $this -> pdo,
             $this -> votings,
+            $this -> projects,
             VOTE_POWER_ASSETID,
+            BALANCE_MULTIPLIER
+        );
+        
+        $this -> accountApi = new AccountAPI(
+            $this -> log,
+            $this -> amqp,
+            $this -> pdo,
+            VOTE_POWER_ASSETID,
+            SUBMIT_MIN_AMOUNT,
             BALANCE_MULTIPLIER
         );
         
