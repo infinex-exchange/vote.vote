@@ -95,8 +95,10 @@ class Votings {
         if(@$body['archive']) {
             $task[':month'] = date('n'); // month without 0
             $task[':year'] = date('Y');
-            $sql .= ' AND month != :month
-                      AND year != :year';
+            $sql .= ' AND (
+                          month != :month
+                          OR year != :year
+                      )';
         }
         
         $sql .= ' ORDER BY votingid DESC'
