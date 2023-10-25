@@ -158,6 +158,8 @@ class VotingsAPI {
             $q -> execute($task);
             
             $th -> pdo -> commit();
+            
+            return $th -> getVoting($path, [], [], null);
         });
     }
     
