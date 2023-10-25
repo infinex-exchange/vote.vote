@@ -58,6 +58,8 @@ class VotingsAPI {
     }
     
     public function giveVotes($path, $query, $body, $auth) {
+        $th = $this;
+        
         if(!$auth)
             throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
