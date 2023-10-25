@@ -153,7 +153,7 @@ class VotingsAPI {
                         :uid,
                         :votes
                     )
-                    ON CONFLICT DO UPDATE
+                    ON CONFLICT(uid) DO UPDATE
                     SET votes = user_utilized_votes.votes + EXCLUDED.votes';
             
             $q = $th -> pdo -> prepare($sql);
