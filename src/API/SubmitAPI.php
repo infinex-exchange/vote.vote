@@ -42,7 +42,8 @@ class SubmitAPI {
             if($dTotal < $th -> minAmount)
                 throw new Error(
                     'INSUF_BALANCE',
-                    'You must hold at least '.$th -> minAmount.' '.$balance['symbol'].' to submit a project'
+                    'You must hold at least '.$th -> minAmount.' '.$balance['symbol'].' to submit a project',
+                    406
                 );
             
             $th -> projects -> createProject([

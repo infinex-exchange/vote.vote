@@ -23,10 +23,11 @@ class AccountAPI {
     }
     
     public function initRoutes($rc) {
-        $rc -> get('/account', [$this, 'getAccount']);
+        $rc -> get('/account/votes', [$this, 'getAvblVotes']);
+        $rc -> get('/account/submit', [$this, 'getCanSubmit']);
     }
     
-    public function getAccount($path, $query, $body, $auth) {
+    public function getAvblVotes($path, $query, $body, $auth) {
         if(!$auth)
             throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
@@ -39,8 +40,6 @@ class AccountAPI {
             ]
         ) -> then(function($balance) use($th, $auth) {
             $dBalance = new Decimal($balance['total']);
-            
-            $canSubmit = $dBalance >= $th -> submitMinAmount;
             
             $avblVotes = $dBalance * $th -> multiplier;
             $avblVotes = $avblVotes -> floor();
@@ -64,9 +63,31 @@ class AccountAPI {
                 $avblVotes = 0;
             
             return [
-                'votes' => $avblVotes,
-                'canSubmit' => $canSubmit
+                'votes' => $avblVotes
             ];
+        });
+    }
+    
+    public function getCanSubmit($path, $query, $body, $auth) {
+        if(!$auth)
+            throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
+        
+        return $this -> amqp -> call(
+            'wallet.wallet',
+            'getBalance',
+            [
+                'uid' => $auth['uid'],
+                'assetid' => $this -> powerAssetid
+            ]
+        ) -> then(function($balance) use($th, $auth) {
+            $dBalance = new Decimal($balance['total']);
+            
+            if($dBalance < $th -> submitMinAmount)
+                throw new Error(
+                    'INSUF_BALANCE',
+                    'You must hold at least '.$th -> minAmount.' '.$balance['symbol'].' to submit a project',
+                    406
+                );
         });
     }
 }
