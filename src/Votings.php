@@ -202,10 +202,9 @@ class Votings {
         }
         
         // Count available projects        
-        $sql = "SELECT COUNT(1) AS count
+        $sql = "SELECT COUNT(1)
                 FROM projects
-                WHERE status = 'APPROVED'
-                FOR UPDATE";
+                WHERE status = 'APPROVED'";
         
         $q = $this -> pdo -> query($sql);
         $count = $q -> fetch();

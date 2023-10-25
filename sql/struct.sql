@@ -8,7 +8,7 @@ create table votings(
     unique(month, year)
 );
 
-GRANT SELECT, INSERT ON votings TO "vote.vote";
+GRANT SELECT, INSERT, UPDATE ON votings TO "vote.vote";
 GRANT SELECT, USAGE ON votings_votingid_seq TO "vote.vote";
 
 create table projects(
