@@ -161,7 +161,7 @@ class VotingsAPI {
             
             $th -> pdo -> commit();
             
-            return $th -> getVoting($path, [], [], null);
+            return $th -> getVoting(['votingid' => 'current'], [], [], null);
         });
     }
     
