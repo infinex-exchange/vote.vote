@@ -32,7 +32,7 @@ create table user_utilized_votes(
     uid bigint not null,
     votes bigint not null,
     
-    unique(uid, votes)
+    unique(uid)
 );
 
 GRANT SELECT, INSERT, UPDATE, TRUNCATE ON user_utilized_votes TO "vote.vote";
