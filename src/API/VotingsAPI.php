@@ -1,7 +1,7 @@
 <?php
 
 use Infinex\Exceptions\Error;
-use Infinex\Validation\validateId;
+use function Infinex\Validation\validateId;
 use Decimal\Decimal;
 
 class VotingsAPI {
