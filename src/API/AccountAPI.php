@@ -46,8 +46,6 @@ class AccountAPI {
             $avblVotes = $dBalance * $th -> multiplier;
             $avblVotes = $avblVotes -> floor();
             
-            echo "AVBL: $avblVotes\n\n";
-            
             $task = [
                 ':uid' => $auth['uid']
             ];
@@ -59,7 +57,6 @@ class AccountAPI {
             $q = $th -> pdo -> prepare($sql);
             $q -> execute($task);
             $rowUuv = $q -> fetch();
-            var_dump($rowUuv);
             
             if($rowUuv)
                 $avblVotes -= $rowUuv['votes'];
