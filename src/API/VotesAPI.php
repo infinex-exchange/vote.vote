@@ -98,7 +98,9 @@ class VotesAPI {
             $avblVotes *= $th -> multiplier;
             $avblVotes = $avblVotes -> floor();
             
+            // Exclusive lock user_utilized_votes
             $th -> pdo -> beginTransaction();
+            $th -> pdo -> query('LOCK TABLE user_utilized_votes');
             
             $task = [
                 ':uid' => $auth['uid']
@@ -106,15 +108,14 @@ class VotesAPI {
             
             $sql = 'SELECT votes
                     FROM user_utilized_votes
-                    WHERE uid = :uid
-                    FOR UPDATE';
+                    WHERE uid = :uid';
             
             $q = $th -> pdo -> prepare($sql);
             $q -> execute($task);
-            $rowUuv = $q -> fetch();
+            $row = $q -> fetch();
             
-            if($rowUuv)
-                $avblVotes -= $rowUuv['votes'];
+            if($row)
+                $avblVotes -= $row['votes'];
             
             if($avblVotes < 0)
                 $avblVotes = 0;
@@ -154,18 +155,15 @@ class VotesAPI {
                 ':votes' => $body['votes']
             ];
             
-            if($rowUuv)
-                $sql = 'UPDATE user_utilized_votes
-                        SET votes = votes + :votes
-                        WHERE uid = :uid';
-            else
-                $sql = 'INSERT INTO user_utilized_votes(
-                            uid,
-                            votes
-                        ) VALUES (
-                            :uid,
-                            :votes
-                        )';
+            $sql = 'INSERT INTO user_utilized_votes(
+                        uid,
+                        votes
+                    ) VALUES (
+                        :uid,
+                        :votes
+                    )
+                    ON CONFLICT DO UPDATE
+                    SET votes = user_utilized_votes.votes + EXCLUDED.votes';
             
             $q = $th -> pdo -> prepare($sql);
             $q -> execute($task);

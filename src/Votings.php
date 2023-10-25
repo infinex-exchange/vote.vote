@@ -176,6 +176,10 @@ class Votings {
     }
     
     private function maybeCreateVoting() {        
+        // Exclusive lock
+        $this -> pdo -> beginTransaction();
+        $this -> pdo -> query('LOCK TABLE votings');
+        
         // Check already exists
         $task = [
             ':month' => date('n'),
@@ -185,10 +189,7 @@ class Votings {
         $sql = 'SELECT votingid
                 FROM votings
                 WHERE month = :month
-                AND year = :year
-                FOR UPDATE';
-            
-        $this -> pdo -> beginTransaction();
+                AND year = :year';
         
         $q = $this -> pdo -> prepare($sql);
         $q -> execute($task);

@@ -3,7 +3,9 @@ CREATE ROLE "vote.vote" LOGIN PASSWORD 'password';
 create table votings(
     votingid bigserial not null primary key,
     month int not null,
-    year int not null
+    year int not null,
+    
+    unique(month, year)
 );
 
 GRANT SELECT, INSERT ON votings TO "vote.vote";
@@ -28,7 +30,9 @@ GRANT SELECT, USAGE ON projects_projectid_seq TO "vote.vote";
 
 create table user_utilized_votes(
     uid bigint not null,
-    votes bigint not null
+    votes bigint not null,
+    
+    unique(uid, votes)
 );
 
 GRANT SELECT, INSERT, UPDATE, TRUNCATE ON user_utilized_votes TO "vote.vote";
