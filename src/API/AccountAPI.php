@@ -28,6 +28,8 @@ class AccountAPI {
     }
     
     public function getAvblVotes($path, $query, $body, $auth) {
+        $th = $this;
+        
         if(!$auth)
             throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
@@ -69,6 +71,8 @@ class AccountAPI {
     }
     
     public function getCanSubmit($path, $query, $body, $auth) {
+        $th = $this;
+        
         if(!$auth)
             throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
@@ -79,7 +83,7 @@ class AccountAPI {
                 'uid' => $auth['uid'],
                 'assetid' => $this -> powerAssetid
             ]
-        ) -> then(function($balance) use($th, $auth) {
+        ) -> then(function($balance) use($th) {
             $dBalance = new Decimal($balance['total']);
             
             if($dBalance < $th -> submitMinAmount)
