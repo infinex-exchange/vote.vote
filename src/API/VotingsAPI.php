@@ -116,7 +116,7 @@ class VotingsAPI {
                 throw new Error(
                     'VOTES_OUT_OF_RANGE',
                     'Cannot give '.$body['votes'].' votes. Available votes: '.$avblVotes,
-                    416
+                    406
                 );
             }
             

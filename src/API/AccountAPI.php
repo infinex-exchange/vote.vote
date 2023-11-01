@@ -88,9 +88,9 @@ class AccountAPI {
             
             if($dBalance < $th -> submitMinAmount)
                 throw new Error(
-                    'INSUF_BALANCE',
+                    'INSUFFICIENT_BALANCE',
                     'You must hold at least '.$th -> minAmount.' '.$balance['assetid'].' to submit a project',
-                    412
+                    406
                 );
         });
     }

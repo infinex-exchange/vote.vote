@@ -41,9 +41,9 @@ class SubmitAPI {
             $dTotal = new Decimal($balance['total']);
             if($dTotal < $th -> minAmount)
                 throw new Error(
-                    'INSUF_BALANCE',
+                    'INSUFFICIENT_BALANCE',
                     'You must hold at least '.$th -> minAmount.' '.$balance['assetid'].' to submit a project',
-                    412
+                    406
                 );
             
             $th -> projects -> createProject([
