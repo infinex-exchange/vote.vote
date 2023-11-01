@@ -5,6 +5,7 @@ use Infinex\Pagination;
 use Infinex\Database\Search;
 use Infinex\Database\Sorting;
 use function Infinex\Validation\validateId;
+use function Infinex\Validation\validateStrId;
 use React\Promise;
 
 class Projects {
@@ -249,7 +250,7 @@ class Projects {
             !isset($body['color'])
         )
             throw new Error('MISSING_DATA', 'Nothing to change');
-        if(isset($body['symbol']) && !$this -> validateSymbol($body['symbol']))
+        if(isset($body['symbol']) && !validateStrId($body['symbol']))
             throw new Error('VALIDATION_ERROR', 'symbol');
         if(isset($body['name']) && !$this -> validateName($body['name']))
             throw new Error('VALIDATION_ERROR', 'name');
@@ -333,7 +334,7 @@ class Projects {
         
         if(!validateId($body['uid']))
             throw new Error('VALIDATION_ERROR', 'uid');
-        if(!$this -> validateSymbol($body['symbol']))
+        if(!validateStrId($body['symbol']))
             throw new Error('VALIDATION_ERROR', 'symbol', 400);
         if(!$this -> validateName($body['name']))
             throw new Error('VALIDATION_ERROR', 'name', 400);
@@ -399,10 +400,6 @@ class Projects {
             'votingid' => $row['votingid'],
             'votes' => $row['votes']
         ];
-    }
-    
-    private function validateSymbol($symbol) {
-        return preg_match('/^[A-Z0-9]{1,32}$/', $symbol);
     }
     
     private function validateName($name) {
