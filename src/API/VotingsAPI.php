@@ -114,7 +114,7 @@ class VotingsAPI {
             if($body['votes'] > $avblVotes) {
                 $th -> pdo -> rollBack();
                 throw new Error(
-                    'OUT_OF_RANGE',
+                    'VOTES_OUT_OF_RANGE',
                     'Cannot give '.$body['votes'].' votes. Available votes: '.$avblVotes,
                     416
                 );

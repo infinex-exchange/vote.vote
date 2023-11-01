@@ -90,7 +90,7 @@ class AccountAPI {
                 throw new Error(
                     'INSUF_BALANCE',
                     'You must hold at least '.$th -> minAmount.' '.$balance['symbol'].' to submit a project',
-                    406
+                    412
                 );
         });
     }

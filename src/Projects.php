@@ -230,7 +230,7 @@ class Projects {
         
         if($row['status'] == 'INCLUDED') {
             $this -> pdo -> rollBack();
-            throw new Error('FORBIDDEN', 'Included project cannot be removed');
+            throw new Error('READ_ONLY', 'Included project cannot be removed');
         }
     }
     
@@ -282,7 +282,7 @@ class Projects {
         
         if(isset($body['status']) && $status['status'] == 'INCLUDED') {
             $this -> pdo -> rollBack();
-            throw new Error('FORBIDDEN', 'Cannot change status of included project');
+            throw new Error('READ_ONLY', 'Cannot change status of included project');
         }
                 
         $sql = 'UPDATE projects

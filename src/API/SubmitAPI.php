@@ -28,7 +28,7 @@ class SubmitAPI {
         $th = $this;
         
         if(!$auth)
-            throw new Error('UNAUHTORIZED', 'Unauthorized', 401);
+            throw new Error('UNAUTHORIZED', 'Unauthorized', 401);
         
         return $this -> amqp -> call(
             'wallet.wallet',
@@ -43,7 +43,7 @@ class SubmitAPI {
                 throw new Error(
                     'INSUF_BALANCE',
                     'You must hold at least '.$th -> minAmount.' '.$balance['symbol'].' to submit a project',
-                    406
+                    412
                 );
             
             $th -> projects -> createProject([
